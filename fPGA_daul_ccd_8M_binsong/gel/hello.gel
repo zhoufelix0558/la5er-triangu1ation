@@ -1,0 +1,11 @@
+menuitem "CCS";
+
+
+dialog InitTarget10128(startAddress "Starting Address", EndAddress "End Address")
+ {
+	GEL_MemorySave(recv_adc_buffer, 1, 0x100, "c:\\mydir\\myfile.dat");
+ }
+
+
+dialog InitTarget10128(startAddress "Starting Address", EndAddress "End Address")
+{}
