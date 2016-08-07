@@ -550,14 +550,45 @@ void Set_Zeros(uint16_t data[], uint16_t leftpoint, uint16_t rightpoint)
 }
 
 
-float kalman_realtime(float Data, float* preData_addr, float*p_addr)
+float kalman_realtime(float Data, float* preData_addr, float*p_addr,float ratio)
 {
 	float kGain;
-	*p_addr += 0.00001;
+	*p_addr += ratio;
 	kGain = *p_addr / (*p_addr + 1);
 	*preData_addr = *preData_addr + kGain*(Data - *preData_addr);
 	*p_addr = (1.0 - kGain)*(*p_addr);
 	return *preData_addr;
 }
 
+float range(float data[],int loop)
+{
+	int cnt;
+	float min_tmp=data[0],max_tmp=data[0];
+	for(cnt = 1; cnt<loop;cnt++)
+	{
+		if (data[cnt]<=min_tmp)
+			min_tmp = data[cnt];
+		else if (data[cnt]>max_tmp)
+			max_tmp = data[cnt];
+		else
+			continue;
+	}
+	return max_tmp-min_tmp;
+}
+
+float max(float data[], int loop)
+{
+	int cnt;
+		float min_tmp=data[0],max_tmp=data[0];
+		for(cnt = 1; cnt<loop;cnt++)
+		{
+			if (data[cnt]<=min_tmp)
+				min_tmp = data[cnt];
+			else if (data[cnt]>max_tmp)
+				max_tmp = data[cnt];
+			else
+				continue;
+		}
+		return fabs(max_tmp)>fabs(min_tmp)?fabs(max_tmp):fabs(min_tmp);
+}
 

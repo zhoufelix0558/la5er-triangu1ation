@@ -16,6 +16,12 @@
 #include   "dsp_uart.h"
 #include   "dataprocess.h"
 
+//0.1的时候效果比较好
+#define kalman_range_threshold  0.1
+#define default_kalman_speed  0.00001
+#define kalman_chase_loop 4
+
+
 extern uint32_t USTIMER_init(void);
 extern void print_all_reg();
 
@@ -125,19 +131,30 @@ void print_reg(uint32_t base,int cnt)
 
 
 //float buffer_tmp[10128];
+char show_str[50];
 float mylocation;
 float ratio = 0.8;
+int data_second_come = 0;
 int loop_num = 2;			//累加的次数，uint16_t的极限是2次及以下（东芝输出的结果就是叠加两次的）
 uint16_t buffer_int_data[2532]  ;
 float buffer_tmp[2532];
 uint16_t MinValue ;			//检测的光斑可能最小值
 uint16_t point_notclear,leftpoint,rightpoint;
 
+float kalman_minus_buffer[kalman_chase_loop] = {0.0};
+float kalman_buffer[kalman_chase_loop] = {0.0};
+int kalman_buffer_cnt = 0;
+float kalman_ratio=0.00001;
 int kalman_loop_num = 0;
+
 float buffer_float_data[2532];
 float kalman_p = 20.0;
 float kalman_preData = 0.0;
 float kalman_result = 0.0;
+
+float test1 ;
+float test2;
+float test3;
 
 int main(void)
 {
@@ -171,6 +188,7 @@ int main(void)
 	 int cc=0;
 	 static int calc_cnt = 0;
 
+
 	 while(1)
 	 {
   		config_upp();
@@ -178,7 +196,7 @@ int main(void)
   		recv_adc_buffer[2531]=1;
   		upp_receive_fifo(recv_adc_buffer,UPP_RX_LNCNT,UPP_DMA_BCNT);
   		cc=0;
-  		char show_str[50];
+
 
   		//送的数据速度太快，导致程序移植timeout，
   		//好像和buffer一直没有被取出会导致overflow相关。如果程序不运行需要大量时间的函数就不会出现问题
@@ -191,32 +209,54 @@ int main(void)
   					//dsp_delay(10);
 
   				if (calc_cnt %loop_num ==1)
-  				{
+  				{	data_second_come = 1;
   					point_notclear = point_nclear_return_minValue(recv_adc_buffer, 6, &MinValue);
   					leftpoint  = bi_side_search_withMinValue(recv_adc_buffer, point_notclear, 0, ratio, 5, MinValue);
   					rightpoint = bi_side_search_withMinValue(recv_adc_buffer, point_notclear, 1, ratio, 5, MinValue);
-  					Set_Zeros(buffer_int_data, leftpoint - 5, rightpoint + 5);
-  					Sum_To_Int(recv_adc_buffer, buffer_int_data, leftpoint - 5, rightpoint + 5);
+  					Set_Zeros(buffer_int_data, leftpoint - 6, rightpoint + 6);
+  					Sum_To_Int(recv_adc_buffer, buffer_int_data, leftpoint - 6, rightpoint + 6);
 
   				}
   				else
-  				{
-  					Sum_To_Int(recv_adc_buffer, buffer_int_data, leftpoint - 5, rightpoint + 5);
-  					//dsp_delay(500000);
-  					//Data_Average_Int(buffer_int_data, buffer_tmp , 4, 790, 850);
-  					region_gauss_filter(buffer_int_data, leftpoint - 5, rightpoint + 5,buffer_float_data);
-  					//point_notclear = point_nclear_return_maxValue(recv_adc_buffer, 20, &MaxValue);
-  					leftpoint  = bi_side_search_float(buffer_float_data, point_notclear, 0 , ratio, 5, MinValue*2);
-  					rightpoint  = bi_side_search_float(buffer_float_data, point_notclear, 1 , ratio, 5, MinValue*2);
-  					mylocation = zhixin_downward(buffer_float_data, leftpoint, rightpoint, ratio ,MinValue);
-  					kalman_result = kalman_realtime(mylocation, &kalman_preData, &kalman_p);
+  				{   if(data_second_come == 1)
+  					{
+						Sum_To_Int(recv_adc_buffer, buffer_int_data, leftpoint - 6, rightpoint + 6);
+						//dsp_delay(500000);
+						//Data_Average_Int(buffer_int_data, buffer_tmp , 4, 790, 850);
+						region_gauss_filter(buffer_int_data, leftpoint - 6, rightpoint + 6,buffer_float_data);
+						//point_notclear = point_nclear_return_maxValue(recv_adc_buffer, 20, &MaxValue);
+						//这个跳的间隔必须小于原来拓展的两边距离，不然在模糊寻找最大值的时候就跳到0.0的点上了。
+						leftpoint  = bi_side_search_float(buffer_float_data, point_notclear, 0 , ratio, 4, MinValue*2);
+						rightpoint  = bi_side_search_float(buffer_float_data, point_notclear, 1 , ratio, 4, MinValue*2);
+						mylocation = zhixin_downward(buffer_float_data, leftpoint, rightpoint, ratio ,MinValue);
+						kalman_result = kalman_realtime(mylocation, &kalman_preData, &kalman_p, kalman_ratio);
+						//kalman_chase_loop次kalman的结果判断收敛速度的选择
+						kalman_minus_buffer[kalman_buffer_cnt%kalman_chase_loop] = mylocation-kalman_result;
+						kalman_buffer[kalman_buffer_cnt%kalman_chase_loop] = kalman_result;
+						kalman_buffer_cnt++;
+						//if(kalman_buffer_cnt%kalman_chase_loop == (kalman_chase_loop-1))
 
-  					kalman_loop_num++;
-  					//kalman_result1 = kalman_realtime(kalman_result, &kalman_preData1, &kalman_p1);
-  					//kalman_result2 = kalman_realtime(kalman_result1, &kalman_preData2, &kalman_p2);
-  					//mylocation = 0.235;
-  				  //sprintf(show_str, "location = %f\t\t",kalman_result2);
-  				   //str2com(show_str);
+						test1 = range(kalman_minus_buffer,kalman_chase_loop);
+						test2 = max(kalman_minus_buffer,kalman_chase_loop);
+						test3 = range(kalman_buffer,kalman_chase_loop);
+						if(kalman_buffer_cnt>kalman_chase_loop)
+						{
+							if((range(kalman_minus_buffer,kalman_chase_loop) > kalman_range_threshold)|(max(kalman_minus_buffer,kalman_chase_loop)>kalman_range_threshold)|(range(kalman_buffer,kalman_chase_loop) > 0.02))
+								kalman_ratio = 1;
+							else
+								kalman_ratio = default_kalman_speed;
+						}
+
+						kalman_loop_num++;
+						//kalman_result1 = kalman_realtime(kalman_result, &kalman_preData1, &kalman_p1);
+						//kalman_result2 = kalman_realtime(kalman_result1, &kalman_preData2, &kalman_p2);
+						//mylocation = 0.235;
+					  sprintf(show_str, "%7d-%4.8f-%4.8f\n",kalman_loop_num,mylocation,kalman_result);
+					   str2com(show_str);
+  					}
+  				else
+  					data_second_come =0;
+
   				// Set_Zeros(buffer_int_data,745,865);
   				 // memset(buffer_int_data,0,sizeof(uint16_t) * 900);
   				}

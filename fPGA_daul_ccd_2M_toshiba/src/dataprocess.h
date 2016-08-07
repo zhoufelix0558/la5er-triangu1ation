@@ -35,9 +35,9 @@ extern uint16_t bi_side_search_jump(const uint16_t data[point_NUM * 4], uint16_t
 extern uint16_t Array_Average(uint16_t longbuffer[4 * point_NUM], float float_buffer[point_NUM]);
 extern void Sum_To_Int(const uint16_t data[], uint16_t int_data[], uint16_t leftpoint, uint16_t rightpoint);
 extern void Set_Zeros(uint16_t data[], uint16_t leftpoint, uint16_t rightpoint);
-extern float kalman_realtime(float Data, float* preData_addr, float*p_addr);
-
-
+extern float kalman_realtime(float Data, float* preData_addr, float*p_addr,float ratio);
+extern float range(float data[],int loop);
+extern float max(float data[], int loop);
 
 
 
