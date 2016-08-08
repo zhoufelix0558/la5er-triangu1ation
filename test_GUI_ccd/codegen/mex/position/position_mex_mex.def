@@ -1,0 +1,8 @@
+LIBRARY position_mex.mexw64
+EXPORTS
+mexFunction
+emlrtMexFcnProperties
+position
+position_initialize
+position_terminate
+position_atexit
