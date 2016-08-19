@@ -22,9 +22,16 @@ function varargout = example(varargin)
 
 % Edit the above text to modify the response to help example
 
-% Last Modified by GUIDE v2.5 08-Aug-2016 14:47:55
+% Last Modified by GUIDE v2.5 11-Aug-2016 14:56:37
 
 % Begin initialization code - DO NOT EDIT
+global default_para;
+data = load('default_para.mat');
+default_para = data.default_para;
+
+global obj1;
+obj1 = sample_init;
+
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
@@ -43,6 +50,9 @@ else
 end
 % End initialization code - DO NOT EDIT
 
+
+
+
 % --- Executes just before example is made visible.
 function example_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -50,6 +60,8 @@ function example_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to example (see VARARGIN)
+
+
 
 % Choose default command line output for example
 handles.output = hObject;
@@ -73,17 +85,10 @@ function varargout = example_OutputFcn(hObject, eventdata, handles)
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
 %全局变量
-
-
-
-
-
-
 
 
 
@@ -99,6 +104,7 @@ global loc;
 global kal_result ;
 global cnt;
 global num_cnt;
+global obj1;
 
 axes(handles.axes1);
 cla;
@@ -109,11 +115,10 @@ kal_cnt = zeros(1,N);
 loc = zeros(1,N);
 kal_result = zeros(1,N);
 interval=300;
-obj1 = sample_init;
 num_cnt = 3;
 
 
-buffer = fscanf(obj1, '%s');
+buffer = fscanf(obj1, '%s')
 [kal_cnt(1),loc(1),kal_result(1)] = str_cong_d_f_f(buffer);
 p = plot(kal_cnt(1),loc(1),kal_cnt(1),kal_result(1));
 [kal_cnt(2),loc(2),kal_result(2)] = str_cong_d_f_f(buffer);
@@ -137,7 +142,7 @@ for cnt =3:N
             datacursormode on
             pos = position(kal_result(num_cnt-1));
 %             set(handles.edit1,'String',num2str(position(loc(num_cnt-1)),'%4.5f'));
-set(handles.edit1,'String',num2str(loc(num_cnt-1),'%4.5f'));
+            set(handles.edit1,'String',num2str(loc(num_cnt-1),'%4.5f'));
             set(handles.edit2,'String',num2str(pos,'%4.2f'));
             set(handles.edit3,'String',num2str(mod(floor(pos*100000),1000)));
             set(handles.edit4,'String',num2str(cnt));
@@ -150,7 +155,7 @@ set(handles.edit1,'String',num2str(loc(num_cnt-1),'%4.5f'));
             
             pos = position(kal_result(num_cnt-1));
 %             set(handles.edit1,'String',num2str(position(loc(num_cnt-1)),'%4.5f'));
-set(handles.edit1,'String',num2str(loc(num_cnt-1),'%4.5f'));
+            set(handles.edit1,'String',num2str(loc(num_cnt-1),'%4.5f'));
             set(handles.edit2,'String',num2str(pos,'%4.2f'));
             set(handles.edit3,'String',num2str(mod(floor(pos*100000),1000)));
             set(handles.edit4,'String',num2str(cnt));
@@ -361,3 +366,265 @@ function axes1_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: place code in OpeningFcn to populate axes1
+
+
+% --- Executes on slider movement.
+function slider1_Callback(hObject, eventdata, handles)
+% hObject    handle to slider1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+
+% --- Executes during object creation, after setting all properties.
+function slider1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+
+function edit5_Callback(hObject, eventdata, handles)
+% hObject    handle to edit5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit5 as text
+%        str2double(get(hObject,'String')) returns contents of edit5 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit5_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on slider movement.
+function slider2_Callback(hObject, eventdata, handles)
+% hObject    handle to slider2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+val = get(hObject,'value');
+set(handles.text6,'String',num2str(val,'%2.3f'));
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+
+% --- Executes during object creation, after setting all properties.
+function slider2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+ global default_para
+set(hObject,'value',default_para(1));
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes during object creation, after setting all properties.
+function text6_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to text6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+global default_para
+set(hObject,'String',num2str(default_para(1),'%2.3f'));
+
+
+% --- Executes on slider movement.
+function slider3_Callback(hObject, eventdata, handles)
+% hObject    handle to slider3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+val = get(hObject,'value');
+set(handles.text8,'String',num2str(val,'%2.3f'));
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+
+% --- Executes during object creation, after setting all properties.
+function slider3_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+global default_para;
+set(hObject,'value',default_para(2));
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on slider movement.
+function slider4_Callback(hObject, eventdata, handles)
+% hObject    handle to slider4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+val = get(hObject,'value');
+set(handles.text10,'String',num2str(val,'%2.3f'));
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+
+% --- Executes during object creation, after setting all properties.
+function slider4_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+global default_para;
+set(hObject,'value',default_para(3));
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on slider movement.
+function slider5_Callback(hObject, eventdata, handles)
+% hObject    handle to slider5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+val = get(hObject,'value');
+set(handles.text12,'String',num2str(val,'-%2.3f'));
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+
+% --- Executes during object creation, after setting all properties.
+function slider5_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+global default_para;
+set(hObject,'value',default_para(4));
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on slider movement.
+function slider6_Callback(hObject, eventdata, handles)
+% hObject    handle to slider6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+val = get(hObject,'value');
+set(handles.text14,'String',num2str(val,'%2.3f'));
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+
+% --- Executes during object creation, after setting all properties.
+function slider6_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+global default_para;
+set(hObject,'value',default_para(5));
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on slider movement.
+function slider7_Callback(hObject, eventdata, handles)
+% hObject    handle to slider7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+val = get(hObject,'value');
+set(handles.text16,'String',num2str(val,'%2.3f'));
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+
+% --- Executes during object creation, after setting all properties.
+function slider7_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+global default_para;
+set(hObject,'value',default_para(6));
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes during object creation, after setting all properties.
+function text8_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to text8 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+global default_para
+set(hObject,'String',num2str(default_para(2),'%2.3f'));
+
+
+% --- Executes during object creation, after setting all properties.
+function text10_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to text10 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+global default_para
+set(hObject,'String',num2str(default_para(3),'%1.1f'));
+
+
+% --- Executes during object creation, after setting all properties.
+function text12_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to text12 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+global default_para
+set(hObject,'String',num2str(default_para(4),'-%1.1f'));
+
+
+% --- Executes during object creation, after setting all properties.
+function text14_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to text14 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+global default_para
+set(hObject,'String',num2str(default_para(5),'%1.2f'));
+
+
+% --- Executes during object creation, after setting all properties.
+function text16_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to text16 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+global default_para
+set(hObject,'String',num2str(default_para(6),'%2.3f'));
+
+
+% --- Executes on button press in pushbutton6.
+function pushbutton6_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton6 (see GCBO)
+global obj1;
+val1 = get(handles.slider2,'value');
+val2 = get(handles.slider3,'value');
+val3 = get(handles.slider4,'value');
+val4 = get(handles.slider5,'value');
+val5 = get(handles.slider6,'value');
+val6 = get(handles.slider7,'value');
+
+% fprintf(obj1,serial_str_generate(val1,val2,val3,val4,val5,val6),'async');
+fprintf(obj1, '%c', serial_str_generate(val1,val2,val3,val4,val5,val6));
+
+
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
