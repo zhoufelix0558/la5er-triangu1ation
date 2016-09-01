@@ -1,0 +1,4 @@
+﻿  process.cpp
+c:\users\hypersen04\documents\visual studio 2015\projects\tof_sensor\tof_sensor\process.cpp(48): warning C4244: “=”: 从“float”转换到“unsigned int”，可能丢失数据
+c:\users\hypersen04\documents\visual studio 2015\projects\tof_sensor\tof_sensor\process.cpp(84): warning C4305: “初始化”: 从“double”到“float”截断
+  TOF_sensor.vcxproj -> c:\users\hypersen04\documents\visual studio 2015\Projects\TOF_sensor\Debug\TOF_sensor.exe
